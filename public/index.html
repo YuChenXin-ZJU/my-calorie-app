@@ -463,9 +463,10 @@
         .analysis-section {
             margin: 20px 0;
             border-radius: var(--border-radius-sm);
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
             padding: 20px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .analysis-section h4 {
@@ -491,14 +492,16 @@
             align-items: center;
             gap: 12px;
             padding: 12px;
-            background: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 12px;
             transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
         }
 
         .food-item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
             transform: translateX(4px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
         }
 
         .food-emoji {
@@ -512,17 +515,18 @@
         }
 
         .nutrition-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
             border-radius: 12px;
             padding: 15px;
             transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
         }
 
         .nutrition-card:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, #ff5722 0%, #e53e3e 100%);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
         }
 
         .nutrition-header {

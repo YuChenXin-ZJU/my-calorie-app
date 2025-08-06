@@ -302,13 +302,19 @@ function formatCombinedNutritionItems(foodText, nutritionText) {
         const cleanItem = item.replace(/^-\s*/, '').trim();
         const parts = cleanItem.split(':');
         if (parts.length >= 2) {
-            const type = parts[0].trim();
-            const amount = parts[1].trim();
-            const emoji = getFoodEmoji(type, amount);
+            const typeWithPrefix = parts[0].trim(); // 如 "菜品1"
+            const details = parts[1].trim(); // 如 "红烧肉, 约150g"
             
-            // 查找对应的营养信息
+            // 提取真实的食物名称和分量
+            const detailParts = details.split(',');
+            const realFoodName = detailParts[0].trim(); // "红烧肉"
+            const amount = detailParts[1] ? detailParts[1].trim() : ''; // "约150g"
+            
+            const emoji = getFoodEmoji(realFoodName, amount);
+            
+            // 查找对应的营养信息 - 使用真实的食物名称
             let nutritionInfo = '';
-            const matchingNutrition = nutritionMap[type];
+            const matchingNutrition = nutritionMap[realFoodName];
             if (matchingNutrition) {
                 // 解析营养成分
                 const nutritionParts = matchingNutrition.split(',').map(n => n.trim());
@@ -335,7 +341,7 @@ function formatCombinedNutritionItems(foodText, nutritionText) {
                     <div class="nutrition-header">
                         <span class="food-emoji">${emoji}</span>
                         <div class="food-info">
-                            <strong>${type}</strong>
+                            <strong>${realFoodName}</strong>
                             <span class="food-amount">${amount}</span>
                         </div>
                     </div>

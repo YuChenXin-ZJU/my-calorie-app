@@ -2,8 +2,8 @@
   publish = "public"
   functions = "netlify/functions"
 
-[functions]
-  timeout = 60
+[functions."*"]
+timeout = 60
 
 [[redirects]]
   from = "/*"

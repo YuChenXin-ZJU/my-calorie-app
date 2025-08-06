@@ -2,6 +2,9 @@
   publish = "public"
   functions = "netlify/functions"
 
+[functions]
+  timeout = 60
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

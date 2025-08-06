@@ -7,7 +7,7 @@ async function performAnalysis(dataUrl, platform) {
         apiUrl = 'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
     } else if (platform === 'zeabur') {
         // Zeabur 使用国际版API
-        apiUrl = 'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+        apiUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
     } else {
         // Vercel 默认使用国内版
         apiUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';

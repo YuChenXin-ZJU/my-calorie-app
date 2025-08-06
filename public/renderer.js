@@ -20,6 +20,10 @@ function getApiUrl() {
     if (window.location.hostname.includes('netlify.app')) {
         return '/.netlify/functions/analyze';
     }
+    // 检测是否为Zeabur部署
+    if (window.location.hostname.includes('zeabur.app')) {
+        return '/api/analyze';
+    }
     // 默认为Vercel部署
     return '/api/analyze';
 }

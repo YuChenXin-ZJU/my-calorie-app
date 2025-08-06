@@ -2,9 +2,16 @@ const axios = require('axios');
 
 async function performAnalysis(dataUrl, platform) {
     // 根据平台选择API端点
-    const apiUrl = platform === 'netlify'
-        ? 'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation'
-        : 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+    let apiUrl;
+    if (platform === 'netlify') {
+        apiUrl = 'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+    } else if (platform === 'zeabur') {
+        // Zeabur 使用国际版API
+        apiUrl = 'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+    } else {
+        // Vercel 默认使用国内版
+        apiUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+    }
 
     const apiKey = process.env.QWEN_API_KEY;
     if (!apiKey) {

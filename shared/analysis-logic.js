@@ -59,7 +59,19 @@ async function performAnalysis(dataUrl, platform) {
 
     const output = response.data.output;
     if (output && output.choices && output.choices.length > 0) {
-        const extractedText = output.choices[0].message.content;
+        const messageContent = output.choices[0].message.content;
+        let extractedText = '';
+
+        // 检查API返回的content是字符串还是数组
+        if (typeof messageContent === 'string') {
+            extractedText = messageContent;
+        } else if (Array.isArray(messageContent)) {
+            // 如果是数组，则提取所有text部分并拼接
+            extractedText = messageContent.map(item => item.text || '').join('\n');
+        } else {
+            // 如果是其他意外类型，则抛出错误
+            throw new Error("API返回了未知的内容格式");
+        }
         
         // 改进后的正则表达式，使用多行模式
         const calorieMatch = extractedText.match(/总热量[：:]\s*(\d+)\s*kcal/im);

@@ -297,10 +297,10 @@ function formatCombinedNutritionItems(foodText, nutritionText) {
     const nutritionMap = {};
     nutritionItems.forEach(item => {
         const cleanItem = item.replace(/^-\s*/, '').trim();
-        const parts = cleanItem.split(':');
-        if (parts.length >= 2) {
-            const foodName = parts[0].trim();
-            const nutrition = parts[1].trim();
+        const colonIndex = cleanItem.indexOf(':');
+        if (colonIndex > 0) {
+            const foodName = cleanItem.substring(0, colonIndex).trim();
+            const nutrition = cleanItem.substring(colonIndex + 1).trim();
             nutritionMap[foodName] = nutrition;
             console.log(`营养映射: "${foodName}" -> "${nutrition}"`);
         }

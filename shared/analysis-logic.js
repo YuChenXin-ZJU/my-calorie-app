@@ -54,7 +54,7 @@ async function performAnalysis(dataUrl, platform) {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
         },
-        timeout: 30000
+        timeout: 55000 // 设置为55秒，以确保在Vercel的60秒限制内完成
     });
 
     const output = response.data.output;

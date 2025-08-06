@@ -12,6 +12,19 @@ const loading = document.getElementById('loading');
 let selectedFile = null;
 
 /**
+ * 自动检测部署平台并返回正确的API URL
+ * @returns {string} API端点URL
+ */
+function getApiUrl() {
+    // 检测是否为Netlify部署
+    if (window.location.hostname.includes('netlify.app')) {
+        return '/.netlify/functions/analyze';
+    }
+    // 默认为Vercel部署
+    return '/api/analyze';
+}
+
+/**
  * 统一处理文件（点击选择或拖拽）
  * @param {File} file 
  */
@@ -111,7 +124,10 @@ analyzeBtn.addEventListener('click', async () => {
         });
 
         // 调用后端 API 分析图片
-        const apiResponse = await fetch('/api/analyze', {
+        const apiUrl = getApiUrl();
+        console.log('使用API端点:', apiUrl);
+        
+        const apiResponse = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

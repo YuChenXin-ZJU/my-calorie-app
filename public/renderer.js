@@ -282,9 +282,16 @@ function formatAnalysisResult(description, totalCalories) {
  * 合并格式化食物识别和营养分析
  */
 function formatCombinedNutritionItems(foodText, nutritionText) {
+    console.log('=== 调试信息 ===');
+    console.log('食物识别文本:', foodText);
+    console.log('营养分析文本:', nutritionText);
+    
     // 解析食物识别数据
     const foodItems = foodText.split('\n').filter(line => line.trim().startsWith('-'));
     const nutritionItems = nutritionText.split('\n').filter(line => line.trim().startsWith('-'));
+    
+    console.log('食物项目:', foodItems);
+    console.log('营养项目:', nutritionItems);
     
     // 创建食物名称到营养信息的映射
     const nutritionMap = {};
@@ -295,6 +302,7 @@ function formatCombinedNutritionItems(foodText, nutritionText) {
             const foodName = parts[0].trim();
             const nutrition = parts[1].trim();
             nutritionMap[foodName] = nutrition;
+            console.log(`营养映射: "${foodName}" -> "${nutrition}"`);
         }
     });
     
@@ -310,11 +318,16 @@ function formatCombinedNutritionItems(foodText, nutritionText) {
             const realFoodName = detailParts[0].trim(); // "红烧肉"
             const amount = detailParts[1] ? detailParts[1].trim() : ''; // "约150g"
             
+            console.log(`处理食物: "${typeWithPrefix}" -> "${details}"`);
+            console.log(`提取食物名: "${realFoodName}", 分量: "${amount}"`);
+            
             const emoji = getFoodEmoji(realFoodName, amount);
             
             // 查找对应的营养信息 - 使用真实的食物名称
             let nutritionInfo = '';
             const matchingNutrition = nutritionMap[realFoodName];
+            console.log(`查找营养信息: "${realFoodName}" -> ${matchingNutrition ? '找到' : '未找到'}`);
+            
             if (matchingNutrition) {
                 // 解析营养成分
                 const nutritionParts = matchingNutrition.split(',').map(n => n.trim());

@@ -137,6 +137,11 @@ module.exports = async (req, res) => {
                 description: analysisResult.description || extractedText
             };
             
+            // 再次确保description是字符串
+            if (Array.isArray(finalResult.description)) {
+                finalResult.description = finalResult.description.map(item => item.text || '').join('\n');
+            }
+            
             return res.status(200).json({ 
                 success: true,
                 result: finalResult,

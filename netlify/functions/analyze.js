@@ -158,6 +158,11 @@ exports.handler = async (event, context) => {
             totalCalories: analysisResult.totalCalories || 0,
             description: analysisResult.description || extractedText
         };
+        
+        // 再次确保description是字符串
+        if (Array.isArray(finalResult.description)) {
+            finalResult.description = finalResult.description.map(item => item.text || '').join('\n');
+        }
 
         console.log('最终分析结果:', finalResult);
 

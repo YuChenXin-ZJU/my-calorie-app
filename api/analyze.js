@@ -81,6 +81,8 @@ module.exports = async (req, res) => {
         if (output && output.choices && output.choices.length > 0) {
             const messageContent = output.choices[0].message.content;
             let extractedText = '';
+            
+            // 处理不同格式的响应内容
             if (Array.isArray(messageContent)) {
                 extractedText = messageContent.filter(item => item.text).map(item => item.text).join('\n');
             } else if (typeof messageContent === 'string') {
@@ -89,8 +91,57 @@ module.exports = async (req, res) => {
                 console.error("API returned unexpected content format:", messageContent);
                 return res.status(500).json({ error: "API returned unexpected content format" });
             }
-            // 将提取的文本作为JSON响应的一部分返回
-            return res.status(200).json({ result: extractedText });
+            
+            console.log('原始API响应内容:', extractedText);
+            
+            // 尝试解析JSON响应
+            let analysisResult;
+            try {
+                // 尝试从响应中提取JSON - 处理代码块包装的情况
+                let jsonText = extractedText;
+                
+                // 移除markdown代码块标记
+                jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+                
+                // 尝试找到JSON对象
+                const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    // 清理JSON中的注释
+                    let cleanJson = jsonMatch[0];
+                    cleanJson = cleanJson.replace(/\/\/[^\n\r]*/g, ''); // 移除单行注释
+                    cleanJson = cleanJson.replace(/\/\*[\s\S]*?\*\//g, ''); // 移除多行注释
+                    
+                    console.log('清理后的JSON:', cleanJson);
+                    analysisResult = JSON.parse(cleanJson);
+                } else {
+                    throw new Error('未找到有效的JSON格式');
+                }
+            } catch (parseError) {
+                console.log('JSON解析失败，使用文本响应:', parseError.message);
+                // 如果JSON解析失败，创建默认结构
+                analysisResult = {
+                    isFood: extractedText.toLowerCase().includes('食物') || extractedText.toLowerCase().includes('food'),
+                    foods: [],
+                    totalCalories: 0,
+                    description: extractedText
+                };
+            }
+            
+            console.log('最终分析结果:', analysisResult);
+            
+            // 确保返回的结果包含所有必需字段
+            const finalResult = {
+                isFood: analysisResult.isFood || false,
+                foods: analysisResult.foods || [],
+                totalCalories: analysisResult.totalCalories || 0,
+                description: analysisResult.description || extractedText
+            };
+            
+            return res.status(200).json({ 
+                success: true,
+                result: finalResult,
+                timestamp: new Date().toISOString()
+            });
         } else {
             // 如果响应格式不符合预期
             console.error("API response format is unexpected:", response.data);

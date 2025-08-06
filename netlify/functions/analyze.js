@@ -102,41 +102,71 @@ exports.handler = async (event, context) => {
         }
 
         const content = qwenResult.output.choices[0].message.content;
+        let extractedText = '';
+        
+        // 处理不同格式的响应内容
+        if (Array.isArray(content)) {
+            extractedText = content.filter(item => item.text).map(item => item.text).join('\n');
+        } else if (typeof content === 'string') {
+            extractedText = content;
+        } else {
+            console.error("API返回内容格式异常:", content);
+            throw new Error('API返回内容格式异常');
+        }
+        
+        console.log('原始API响应内容:', extractedText);
         
         // 尝试解析JSON响应
         let analysisResult;
         try {
-            // 尝试从响应中提取JSON
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            // 尝试从响应中提取JSON - 处理代码块包装的情况
+            let jsonText = extractedText;
+            
+            // 移除markdown代码块标记
+            jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+            
+            // 尝试找到JSON对象
+            const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
-                analysisResult = JSON.parse(jsonMatch[0]);
+                // 清理JSON中的注释
+                let cleanJson = jsonMatch[0];
+                cleanJson = cleanJson.replace(/\/\/[^\n\r]*/g, ''); // 移除单行注释
+                cleanJson = cleanJson.replace(/\/\*[\s\S]*?\*\//g, ''); // 移除多行注释
+                
+                console.log('清理后的JSON:', cleanJson);
+                analysisResult = JSON.parse(cleanJson);
             } else {
-                // 如果没找到JSON格式，创建默认结构
-                analysisResult = {
-                    isFood: false,
-                    foods: [],
-                    totalCalories: 0,
-                    description: content
-                };
+                throw new Error('未找到有效的JSON格式');
             }
         } catch (parseError) {
             console.log('JSON解析失败，使用文本响应:', parseError.message);
+            // 如果JSON解析失败，创建默认结构
             analysisResult = {
-                isFood: false,
+                isFood: extractedText.toLowerCase().includes('食物') || extractedText.toLowerCase().includes('food'),
                 foods: [],
                 totalCalories: 0,
-                description: content
+                description: extractedText
             };
         }
+        
+        console.log('最终分析结果:', analysisResult);
+        
+        // 确保返回的结果包含所有必需字段
+        const finalResult = {
+            isFood: analysisResult.isFood || false,
+            foods: analysisResult.foods || [],
+            totalCalories: analysisResult.totalCalories || 0,
+            description: analysisResult.description || extractedText
+        };
 
-        console.log('分析结果:', analysisResult);
+        console.log('最终分析结果:', finalResult);
 
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
                 success: true,
-                result: analysisResult,
+                result: finalResult,
                 timestamp: new Date().toISOString()
             })
         };

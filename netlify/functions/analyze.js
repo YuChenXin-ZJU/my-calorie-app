@@ -64,7 +64,7 @@ exports.handler = async (event, context) => {
         const response = await axios.post(
             'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
             {
-                model: "qwen-vl-plus",
+                model: "qwen-vl-max",
                 input: {
                     messages: [
                         {
@@ -74,7 +74,27 @@ exports.handler = async (event, context) => {
                                     image: dataUrl
                                 },
                                 {
-                                    text: "请分析这张图片中的食物，如果图片中包含食物，请详细描述食物的种类、估算的重量，并计算总卡路里。请以JSON格式返回，包含以下字段：\n- isFood: 是否包含食物(boolean)\n- foods: 食物列表，每个食物包含name(名称)、weight(重量,克)、calories(卡路里)\n- totalCalories: 总卡路里\n- description: 详细描述\n\n如果不是食物图片，请设置isFood为false，并在description中说明图片内容。"
+                                    text: '你是一位顶级的营养分析师。请严格按照下面的【输出格式示例】，分析图片中的所有食物和饮料，并提供精确的营养估算。\n\n' +
+                                    '【输出格式示例】\n' +
+                                    '【食物识别】\n' +
+                                    '- 菜品1: 红烧肉, 约150g\n' +
+                                    '- 菜品2: 米饭, 约200g\n' +
+                                    '- 饮料1: 橙汁, 约300ml\n\n' +
+                                    '【营养分析】\n' +
+                                    '- 红烧肉: 热量: 595 kcal, 蛋白质: 15g, 碳水: 5g, 脂肪: 58g\n' +
+                                    '- 米饭: 热量: 260 kcal, 蛋白质: 5g, 碳水: 58g, 脂肪: 1g\n' +
+                                    '- 橙汁: 热量: 135 kcal, 蛋白质: 2g, 碳水: 30g, 脂肪: 0g\n\n' +
+                                    '【总计】\n' +
+                                    '- 总热量: 990 kcal\n' +
+                                    '- 总蛋白质: 22g\n' +
+                                    '- 总碳水化合物: 93g\n' +
+                                    '- 总脂肪: 59g\n\n' +
+                                    '【分析要求】\n' +
+                                    '1.  **全面识别**：不要遗漏任何食物、饮料、酱料或配菜。\n' +
+                                    '2.  **精确估算**：根据视觉信息合理估算每项的重量(g)或容量(ml)。\n' +
+                                    '3.  **考虑烹饪**：评估烹饪方式（如炒、炸、蒸）对营养的影响。\n' +
+                                    '4.  **处理未知**：如果无法识别，请在对应位置标注为"未知物品"。\n' +
+                                    '5.  **严格格式**：最终输出必须严格遵守【输出格式示例】，不要添加任何额外的解释或说明文字。'
                                 }
                             ]
                         }
@@ -116,37 +136,22 @@ exports.handler = async (event, context) => {
         
         console.log('原始API响应内容:', extractedText);
         
-        // 尝试解析JSON响应
-        let analysisResult;
-        try {
-            // 尝试从响应中提取JSON - 处理代码块包装的情况
-            let jsonText = extractedText;
-            
-            // 移除markdown代码块标记
-            jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-            
-            // 尝试找到JSON对象
-            const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                // 清理JSON中的注释
-                let cleanJson = jsonMatch[0];
-                cleanJson = cleanJson.replace(/\/\/[^\n\r]*/g, ''); // 移除单行注释
-                cleanJson = cleanJson.replace(/\/\*[\s\S]*?\*\//g, ''); // 移除多行注释
-                
-                console.log('清理后的JSON:', cleanJson);
-                analysisResult = JSON.parse(cleanJson);
-            } else {
-                throw new Error('未找到有效的JSON格式');
-            }
-        } catch (parseError) {
-            console.log('JSON解析失败，使用文本响应:', parseError.message);
-            // 如果JSON解析失败，创建默认结构
-            analysisResult = {
-                isFood: extractedText.toLowerCase().includes('食物') || extractedText.toLowerCase().includes('food'),
-                foods: [],
-                totalCalories: 0,
-                description: extractedText
-            };
+        // 由于使用了营养分析师提示词，返回的是格式化文本而不是JSON
+        // 创建默认结构并将文本作为description
+        const analysisResult = {
+            isFood: extractedText.toLowerCase().includes('食物') || 
+                   extractedText.toLowerCase().includes('菜品') || 
+                   extractedText.toLowerCase().includes('热量') ||
+                   extractedText.toLowerCase().includes('kcal'),
+            foods: [],
+            totalCalories: 0,
+            description: extractedText
+        };
+        
+        // 尝试从文本中提取总热量
+        const calorieMatch = extractedText.match(/总热量[：:]\s*(\d+)\s*kcal/i);
+        if (calorieMatch) {
+            analysisResult.totalCalories = parseInt(calorieMatch[1]);
         }
         
         console.log('最终分析结果:', analysisResult);

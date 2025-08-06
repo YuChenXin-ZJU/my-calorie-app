@@ -1,0 +1,25 @@
+{
+  "name": "my-calorie-app",
+  "version": "1.0.0",
+  "description": "AI智能卡路里计算器",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "calorie",
+    "calculator",
+    "ai",
+    "nutrition"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

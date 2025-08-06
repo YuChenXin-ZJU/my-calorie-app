@@ -62,7 +62,7 @@ exports.handler = async (event, context) => {
 
         // 调用Qwen API
         const response = await axios.post(
-            'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
+            'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
             {
                 model: "qwen-vl-max",
                 input: {

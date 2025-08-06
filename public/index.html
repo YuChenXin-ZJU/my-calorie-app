@@ -459,6 +459,219 @@
             }
         }
 
+        /* 分析结果美化样式 */
+        .analysis-section {
+            margin: 20px 0;
+            border-radius: var(--border-radius-sm);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .analysis-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+            font-size: 1.2rem;
+        }
+
+        .section-icon {
+            font-size: 1.3rem;
+        }
+
+        .food-items, .nutrition-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .food-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(4px);
+        }
+
+        .food-emoji {
+            font-size: 1.5rem;
+            min-width: 30px;
+        }
+
+        .food-details {
+            flex: 1;
+            color: white;
+        }
+
+        .nutrition-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nutrition-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .nutrition-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .nutrition-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .nutrition-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .nutrition-item.calories {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .nutrition-item.protein {
+            background: linear-gradient(45deg, #4ecdc4, #6dd5ed);
+            color: white;
+        }
+
+        .nutrition-item.carbs {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+            color: white;
+        }
+
+        .nutrition-item.fat {
+            background: linear-gradient(45deg, #48b8d0, #6dd5ed);
+            color: white;
+        }
+
+        .nutrition-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-item {
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .summary-item:hover {
+            transform: scale(1.05);
+        }
+
+        .calories-total {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        }
+
+        .protein-total {
+            background: linear-gradient(135deg, #4ecdc4, #6dd5ed);
+        }
+
+        .carbs-total {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+
+        .fat-total {
+            background: linear-gradient(135deg, #48b8d0, #6dd5ed);
+        }
+
+        .calories-display {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: var(--border-radius-sm);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calories-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .calories-number {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .calories-unit {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .calories-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        @media (max-width: 768px) {
+            .nutrition-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .nutrition-details {
+                justify-content: center;
+            }
+            
+            .calories-number {
+                font-size: 2.5rem;
+            }
+        }
+
         @media (max-width: 480px) {
             .header h1 {
                 font-size: 2rem;

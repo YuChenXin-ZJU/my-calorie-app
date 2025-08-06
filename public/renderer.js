@@ -160,9 +160,12 @@ analyzeBtn.addEventListener('click', async () => {
 
         // 检查是否为食物
         if (response.isFood) {
-            // 显示分析结果
+            // 显示美化后的分析结果
             const calories = response.totalCalories || 0;
             const description = response.description || '无详细信息';
+            
+            // 解析并美化显示
+            const formattedResult = formatAnalysisResult(description, calories);
             
             resultContent.innerHTML = `
                 <div class="result-success">
@@ -170,17 +173,15 @@ analyzeBtn.addEventListener('click', async () => {
                         <div class="result-icon">🍽️</div>
                         <div>
                             <h3>分析完成！</h3>
-                            <p>检测到食物，营养分析如下：</p>
+                            <p>AI已识别出您的美食，营养分析如下：</p>
                         </div>
                     </div>
                     <div class="calories-display">
                         <div class="calories-number">${calories}</div>
                         <div class="calories-unit">千卡 (kcal)</div>
+                        <div class="calories-label">总热量</div>
                     </div>
-                    <div class="analysis-details">
-                        <h4>详细分析：</h4>
-                        <div class="description-text">${description.replace(/\n/g, '<br>')}</div>
-                    </div>
+                    ${formattedResult}
                 </div>
             `;
         } else {
@@ -228,6 +229,181 @@ analyzeBtn.addEventListener('click', async () => {
         `;
     }
 });
+
+/**
+ * 格式化AI分析结果为美观的HTML显示
+ */
+function formatAnalysisResult(description, totalCalories) {
+    const sections = description.split('【');
+    let foodIdentification = '';
+    let nutritionAnalysis = '';
+    let totalNutrition = '';
+    
+    sections.forEach(section => {
+        if (section.startsWith('食物识别】')) {
+            foodIdentification = section.replace('食物识别】\n', '').split('【')[0].trim();
+        } else if (section.startsWith('营养分析】')) {
+            nutritionAnalysis = section.replace('营养分析】\n', '').split('【')[0].trim();
+        } else if (section.startsWith('总计】')) {
+            totalNutrition = section.replace('总计】\n', '').split('【')[0].trim();
+        }
+    });
+    
+    let html = '';
+    
+    // 食物识别部分
+    if (foodIdentification) {
+        html += `
+            <div class="analysis-section">
+                <h4><span class="section-icon">🔍</span> 食物识别</h4>
+                <div class="food-items">
+                    ${formatFoodItems(foodIdentification)}
+                </div>
+            </div>
+        `;
+    }
+    
+    // 营养分析部分
+    if (nutritionAnalysis) {
+        html += `
+            <div class="analysis-section">
+                <h4><span class="section-icon">📊</span> 营养分析</h4>
+                <div class="nutrition-grid">
+                    ${formatNutritionItems(nutritionAnalysis)}
+                </div>
+            </div>
+        `;
+    }
+    
+    // 营养总计部分
+    if (totalNutrition) {
+        html += `
+            <div class="analysis-section">
+                <h4><span class="section-icon">📈</span> 营养总计</h4>
+                <div class="nutrition-summary">
+                    ${formatNutritionSummary(totalNutrition)}
+                </div>
+            </div>
+        `;
+    }
+    
+    return html;
+}
+
+/**
+ * 格式化食物识别项目
+ */
+function formatFoodItems(foodText) {
+    const items = foodText.split('\n').filter(line => line.trim().startsWith('-'));
+    return items.map(item => {
+        const cleanItem = item.replace(/^-\s*/, '').trim();
+        const parts = cleanItem.split(':');
+        if (parts.length >= 2) {
+            const type = parts[0].trim();
+            const details = parts[1].trim();
+            const emoji = getFoodEmoji(type, details);
+            return `
+                <div class="food-item">
+                    <span class="food-emoji">${emoji}</span>
+                    <div class="food-details">
+                        <strong>${type}:</strong> ${details}
+                    </div>
+                </div>
+            `;
+        }
+        return `<div class="food-item">${cleanItem}</div>`;
+    }).join('');
+}
+
+/**
+ * 格式化营养分析项目
+ */
+function formatNutritionItems(nutritionText) {
+    const items = nutritionText.split('\n').filter(line => line.trim().startsWith('-'));
+    return items.map(item => {
+        const cleanItem = item.replace(/^-\s*/, '').trim();
+        const parts = cleanItem.split(':');
+        if (parts.length >= 2) {
+            const foodName = parts[0].trim();
+            const nutrition = parts[1].trim();
+            const emoji = getFoodEmoji('', foodName);
+            
+            // 解析营养成分
+            const nutritionParts = nutrition.split(',').map(n => n.trim());
+            let nutritionHtml = '';
+            nutritionParts.forEach(part => {
+                if (part.includes('热量')) {
+                    nutritionHtml += `<span class="nutrition-item calories">🔥 ${part}</span>`;
+                } else if (part.includes('蛋白质')) {
+                    nutritionHtml += `<span class="nutrition-item protein">💪 ${part}</span>`;
+                } else if (part.includes('碳水')) {
+                    nutritionHtml += `<span class="nutrition-item carbs">🌾 ${part}</span>`;
+                } else if (part.includes('脂肪')) {
+                    nutritionHtml += `<span class="nutrition-item fat">🥑 ${part}</span>`;
+                } else {
+                    nutritionHtml += `<span class="nutrition-item">${part}</span>`;
+                }
+            });
+            
+            return `
+                <div class="nutrition-card">
+                    <div class="nutrition-header">
+                        <span class="food-emoji">${emoji}</span>
+                        <strong>${foodName}</strong>
+                    </div>
+                    <div class="nutrition-details">
+                        ${nutritionHtml}
+                    </div>
+                </div>
+            `;
+        }
+        return `<div class="nutrition-card">${cleanItem}</div>`;
+    }).join('');
+}
+
+/**
+ * 格式化营养总计
+ */
+function formatNutritionSummary(totalText) {
+    const items = totalText.split('\n').filter(line => line.trim().startsWith('-'));
+    return items.map(item => {
+        const cleanItem = item.replace(/^-\s*/, '').trim();
+        if (cleanItem.includes('总热量')) {
+            return `<div class="summary-item calories-total">🔥 ${cleanItem}</div>`;
+        } else if (cleanItem.includes('总蛋白质')) {
+            return `<div class="summary-item protein-total">💪 ${cleanItem}</div>`;
+        } else if (cleanItem.includes('总碳水')) {
+            return `<div class="summary-item carbs-total">🌾 ${cleanItem}</div>`;
+        } else if (cleanItem.includes('总脂肪')) {
+            return `<div class="summary-item fat-total">🥑 ${cleanItem}</div>`;
+        } else {
+            return `<div class="summary-item">${cleanItem}</div>`;
+        }
+    }).join('');
+}
+
+/**
+ * 根据食物类型获取对应的emoji
+ */
+function getFoodEmoji(type, details) {
+    const text = (type + ' ' + details).toLowerCase();
+    
+    if (text.includes('肉') || text.includes('鸡') || text.includes('猪') || text.includes('牛')) return '🥩';
+    if (text.includes('米饭') || text.includes('饭')) return '🍚';
+    if (text.includes('面') || text.includes('粉')) return '🍜';
+    if (text.includes('蔬菜') || text.includes('生菜') || text.includes('青菜')) return '🥬';
+    if (text.includes('汤') || text.includes('汤水')) return '🍲';
+    if (text.includes('水') || text.includes('饮料')) return '💧';
+    if (text.includes('蛋') || text.includes('鸡蛋')) return '🥚';
+    if (text.includes('豆') || text.includes('豆干')) return '🫘';
+    if (text.includes('炸') || text.includes('油炸')) return '🍗';
+    if (text.includes('卤') || text.includes('卤味')) return '🍖';
+    if (text.includes('果') || text.includes('水果')) return '🍎';
+    if (text.includes('菜品')) return '🍽️';
+    if (text.includes('饮料')) return '🥤';
+    
+    return '🍽️'; // 默认emoji
+}
 
 /**
  * 格式化营养成分显示

@@ -2,8 +2,13 @@
 
 // 获取 DOM 元素
 const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const previewContainer = document.getElementById('previewContainer');
+const fileInput = document.getElementById('fileInput        const data = await apiResponse.json();
+        // 修正：我们的API响应体是 { success: true, result: {...} }
+        // 所以我们需要从 data.result 中获取真正的分析结果
+        const response = data.result; 
+        
+        // 隐藏加载状态
+        loading.classList.remove('show');const previewContainer = document.getElementById('previewContainer');
 const previewImage = document.getElementById('previewImage');
 const analyzeBtn = document.getElementById('analyzeBtn');
 const resultContent = document.getElementById('resultContent');
@@ -142,7 +147,9 @@ analyzeBtn.addEventListener('click', async () => {
         }
 
         const data = await apiResponse.json();
-        const response = data.result;
+        // 修正：我们的API响应体是 { success: true, result: {...} }
+        // 所以我们需要从 data.result 中获取真正的分析结果
+        const response = data.result; 
         
         // 隐藏加载状态
         loading.classList.remove('show');
@@ -407,39 +414,3 @@ function formatTotalCalories(content) {
     return totalCalories + nutrients || '<div>暂无总计信息</div>';
 }
 
-
-// 页面加载完成后可以进行一些初始化检查
-window.addEventListener('DOMContentLoaded', () => {
-    console.log('Renderer process loaded');
-    
-    // 检查所有必要的DOM元素是否存在
-    const elements = {
-        uploadArea,
-        fileInput,
-        previewContainer,
-        previewImage,
-        analyzeBtn,
-        resultContent,
-        loading
-    };
-    
-    for (const [name, element] of Object.entries(elements)) {
-        if (!element) {
-            console.error(`DOM element not found: ${name}`);
-        } else {
-            console.log(`DOM element found: ${name}`);
-        }
-    }
-    
-    // 确保预览容器初始状态正确
-    if (previewContainer) {
-        previewContainer.classList.remove('show');
-        console.log('Preview container initialized');
-    }
-    
-    // 确保分析按钮初始状态正确
-    if (analyzeBtn) {
-        analyzeBtn.disabled = true;
-        console.log('Analyze button initialized');
-    }
-});
